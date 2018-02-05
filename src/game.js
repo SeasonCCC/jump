@@ -2,10 +2,6 @@ import * as THREE from 'three'
 
 class Game {
   constructor () {
-
-  }
-
-  init () {
     this.size = {
       width: window.innerWidth,
       height: window.innerHeight
@@ -14,7 +10,7 @@ class Game {
     this._setCamera()
     this._setRender()
     this._addLight()
-    this._createCube()
+    this._createCube()                                                                                                                                                                                              
     this._createJumper()
     this._axesHelper()
     this.renderer.render(this.scene, this.camera)

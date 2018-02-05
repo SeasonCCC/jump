@@ -69,7 +69,7 @@ require = (function (modules, cache, entry) {
 
   // Override the current require with this new one
   return newRequire;
-})({8:[function(require,module,exports) {
+})({6:[function(require,module,exports) {
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -41042,7 +41042,7 @@ exports.GeometryUtils = GeometryUtils;
 exports.ImageUtils = ImageUtils;
 exports.Projector = Projector;
 exports.CanvasRenderer = CanvasRenderer;
-},{}],3:[function(require,module,exports) {
+},{}],4:[function(require,module,exports) {
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -41056,29 +41056,64 @@ var THREE = _interopRequireWildcard(_three);
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 class Game {
-  constructor() {}
-
-  init() {
-    this._setRender();
-  }
-
-  _setRender() {
+  constructor() {
     this.size = {
       width: window.innerWidth,
       height: window.innerHeight
     };
     this.scene = new THREE.Scene();
-    this.camera = new THREE.OrthographicCamera(this.size.width / -80, this.size.width / 80, this.size.height / 80, this.size.height / -80, 0, 5000);
+    this._setCamera();
+    this._setRender();
+    this._addLight();
+    this._createCube();
+    this._createJumper();
+    this._axesHelper();
+    this.renderer.render(this.scene, this.camera);
+  }
 
+  _setCamera() {
+    this.camera = new THREE.OrthographicCamera(this.size.width / -80, this.size.width / 80, this.size.height / 80, this.size.height / -80, 0, 20);
+    this.camera.position.set(10, 10, 10);
+    this.camera.lookAt(this.scene.position);
+    this.scene.add(this.camera);
+  }
+
+  _setRender() {
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setSize(this.size.width, this.size.height);
-    this.renderer.setClearColor(new THREE.Color(0xEEEEEE));
-    this.renderer.render(this.scene, this.camera);
+    this.renderer.setClearColor(new THREE.Color(0x292728));
+  }
+
+  _addLight() {
+    let light = new THREE.SpotLight(0xffffff);
+    light.position.set(20, 30, 20);
+    this.scene.add(light);
+  }
+
+  _createCube() {
+    let geometry = new THREE.BoxGeometry(5, 3, 5);
+    let matarial = new THREE.MeshLambertMaterial({ color: 'red' });
+    let cube = new THREE.Mesh(geometry, matarial);
+    cube.position.set(0, 0, 10);
+    this.scene.add(cube);
+  }
+
+  _createJumper() {
+    let geometry = new THREE.BoxGeometry(1, 2, 1);
+    let matarial = new THREE.MeshLambertMaterial({ color: 'green' });
+    let jumper = new THREE.Mesh(geometry, matarial);
+    jumper.position.set(0, 2, 10);
+    this.scene.add(jumper);
+  }
+
+  _axesHelper() {
+    const axes = new THREE.AxesHelper(150);
+    this.scene.add(axes);
   }
 }
 
 exports.default = Game;
-},{"three":8}],2:[function(require,module,exports) {
+},{"three":6}],2:[function(require,module,exports) {
 'use strict';
 
 var _game = require('./game');
@@ -41091,7 +41126,7 @@ const game = new _game2.default();
 
 const canvas = document.querySelector('#jump');
 canvas.append(game.renderer.domElement);
-},{"./game":3}],22:[function(require,module,exports) {
+},{"./game":4}],7:[function(require,module,exports) {
 
 var global = (1, eval)('this');
 var OldModule = module.bundle.Module;
@@ -41111,7 +41146,7 @@ module.bundle.Module = Module;
 
 if (!module.bundle.parent && typeof WebSocket !== 'undefined') {
   var hostname = '' || location.hostname;
-  var ws = new WebSocket('ws://' + hostname + ':' + '52693' + '/');
+  var ws = new WebSocket('ws://' + hostname + ':' + '51652' + '/');
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
 
@@ -41212,5 +41247,5 @@ function hmrAccept(bundle, id) {
     return hmrAccept(global.require, id);
   });
 }
-},{}]},{},[22,2])
+},{}]},{},[7,2])
 //# sourceMappingURL=/dist/b53204ca5be59f955cce97d608bfdc87.map
