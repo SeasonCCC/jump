@@ -10,9 +10,9 @@ class Game {
     this.cubes = []
 
     this.cameraData = {
-      cameraPos: new THREE.Vector3(10, 10, 10),
+      cameraPos: [10, 10, 10],
       cameraLookAt: new THREE.Vector3(0, 0, 0),
-      adjustPer: 0.05,
+      adjustPer: 0.1,
       adjustData: 0
     }
   }
@@ -35,7 +35,7 @@ class Game {
 
   _setCamera () {
     this.camera = new THREE.OrthographicCamera(this.size.width / -80, this.size.width / 80, this.size.height / 80, this.size.height / -80, 0, 100)
-    this.camera.position.set(this.cameraData.cameraPos)
+    this.camera.position.set(...this.cameraData.cameraPos)
     this.camera.lookAt(this.cameraData.cameraLookAt)
     this.scene.add(this.camera)
   }
@@ -71,7 +71,7 @@ class Game {
       let random = Math.random()
       let direction = (random > 0.5) ? 'left' : 'right'
       let prevCube = this.cubes[this.cubes.length - 1]
-      let adjustVal = parseInt(random * 3 + 7)
+      let adjustVal = parseInt(random * 4 + 6)
       if (direction === 'left') {
         cube.position.set(prevCube.position.x - adjustVal, 0, prevCube.position.z)
       } else {
@@ -86,9 +86,10 @@ class Game {
       } 
 
       this.scene.add(cube)
-      this._adjustCamera(cube.position, direction, adjustVal)
+      this._adjustCamera(direction, adjustVal)
     } else {
-      cube.position.set(0, 0, 10)
+      // console.log(this.camera.position)
+      cube.position.set(0, 0, 5)
       this.cubes.push(cube)
       this.scene.add(cube)
     }
@@ -100,28 +101,27 @@ class Game {
   }
 
   /* ----------- public function ----------- */
-  _adjustCamera (cubePosition, direction, adjustVal) {
-    // console.log(this.camera.lookAt)
-    if (this.cameraData.adjustData < adjustVal) {
+  _adjustCamera (direction, adjustVal) {
+    if (this.cameraData.adjustData <= adjustVal) {
+      if (direction === 'left') {
+        this.cameraData.cameraPos = [this.cameraData.cameraPos[0] - this.cameraData.adjustPer, this.cameraData.cameraPos[1], this.cameraData.cameraPos[2]]
+        this.cameraData.cameraLookAt.set(this.cameraData.cameraLookAt.x  - this.cameraData.adjustPer, 0, this.cameraData.cameraLookAt.z)
+      } else {
+        this.cameraData.cameraPos = [this.cameraData.cameraPos[0], this.cameraData.cameraPos[1], this.cameraData.cameraPos[2] - this.cameraData.adjustPer]
+        this.cameraData.cameraLookAt.set(this.cameraData.cameraLookAt.x, 0, this.cameraData.cameraLookAt.z - this.cameraData.adjustPer)      
+      }
 
-    } else {
+      this.camera.position.set(...this.cameraData.cameraPos)
+      this.camera.lookAt(this.cameraData.cameraLookAt)
+      this._selfRender()
 
+      this.cameraData.adjustData += this.cameraData.adjustPer
+      requestAnimationFrame(() => {
+        this._adjustCamera(direction, adjustVal)
+      })
+    }else{
+      this.cameraData.adjustData = 0
     }
-    if (direction === 'left') {
-      this.camera.position.set(this.cameraData.cameraPos.x - adjustVal, this.cameraData.cameraPos.y, this.cameraData.cameraPos.z)
-      this.camera.lookAt(new THREE.Vector3(this.cameraData.cameraLookAt.x  - adjustVal, 0, this.cameraData.cameraLookAt.z - 10))
-    } else {
-      this.camera.position.set(this.cameraData.cameraPos.x, this.cameraData.cameraPos.y, this.cameraData.cameraPos.z - adjustVal)
-      this.camera.lookAt(new THREE.Vector3(this.cameraData.cameraLookAt.x, 0, this.cameraData.cameraLookAt.z - 10 - adjustVal))
-    }
-    
-    this._selfRender()
-
-    this.cameraData.cameraPos = this.camera.position
-    this.cameraData.cameraLookAt = this.camera.position
-    // requestAnimationFrame(() => {
-    //   this._adjustCamera()
-    // })
   }
 
   _selfRender () {
