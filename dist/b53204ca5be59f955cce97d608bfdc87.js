@@ -41078,6 +41078,8 @@ class Game {
     this._setRender();
     this._addLight();
 
+    this._createPlane();
+
     this._createJumper();
 
     this._createCube();
@@ -41098,13 +41100,23 @@ class Game {
   _setRender() {
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setSize(this.size.width, this.size.height);
-    this.renderer.setClearColor(new THREE.Color(0x292728));
+    this.renderer.setClearColor(new THREE.Color(0xffffff));
+    this.renderer.shadowMapEnabled = true;
   }
 
   _addLight() {
     const light = new THREE.SpotLight(0xffffff);
     light.position.set(20, 20, 20);
+    light.castShadow = true;
     this.scene.add(light);
+  }
+
+  _createPlane() {
+    let geometry = new THREE.PlaneGeometry(100, 50, 32, 32);
+    let matarial = new THREE.MeshLambertMaterial({ color: 0x0000ff, side: THREE.DoubleSize });
+    let plane = new THREE.Mesh(geometry, matarial);
+    plane.receiveShadow = true;
+    this.scene.add(plane);
   }
 
   // create jumper
@@ -41121,6 +41133,7 @@ class Game {
     let geometry = new THREE.BoxGeometry(5, 3, 5);
     let matarial = new THREE.MeshLambertMaterial({ color: 'red' });
     let cube = new THREE.Mesh(geometry, matarial);
+    cube.castShadow = true;
 
     if (this.cubes.length > 0) {
       let random = Math.random();
@@ -41143,7 +41156,6 @@ class Game {
       this.scene.add(cube);
       this._adjustCamera(direction, adjustVal);
     } else {
-      // console.log(this.camera.position)
       cube.position.set(0, 0, 5);
       this.cubes.push(cube);
       this.scene.add(cube);
@@ -41208,7 +41220,7 @@ document.onkeyup = event => {
       game._createCube();
   }
 };
-},{"./game":3}],16:[function(require,module,exports) {
+},{"./game":3}],10:[function(require,module,exports) {
 
 var global = (1, eval)('this');
 var OldModule = module.bundle.Module;
@@ -41228,7 +41240,7 @@ module.bundle.Module = Module;
 
 if (!module.bundle.parent && typeof WebSocket !== 'undefined') {
   var hostname = '' || location.hostname;
-  var ws = new WebSocket('ws://' + hostname + ':' + '60315' + '/');
+  var ws = new WebSocket('ws://' + hostname + ':' + '51301' + '/');
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
 
@@ -41329,5 +41341,5 @@ function hmrAccept(bundle, id) {
     return hmrAccept(global.require, id);
   });
 }
-},{}]},{},[16,2])
+},{}]},{},[10,2])
 //# sourceMappingURL=/dist/b53204ca5be59f955cce97d608bfdc87.map

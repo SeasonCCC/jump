@@ -23,6 +23,8 @@ class Game {
     this._setRender()
     this._addLight()
 
+    this._createPlane()
+
     this._createJumper()
 
     this._createCube()
@@ -43,13 +45,23 @@ class Game {
   _setRender () {
     this.renderer = new THREE.WebGLRenderer({antialias: true})
     this.renderer.setSize(this.size.width, this.size.height)
-    this.renderer.setClearColor(new THREE.Color(0x292728))
+    this.renderer.setClearColor(new THREE.Color(0xffffff))
+    this.renderer.shadowMapEnabled = true
   }
 
   _addLight () {
     const light = new THREE.SpotLight(0xffffff)
     light.position.set(20, 20, 20)
+    light.castShadow = true
     this.scene.add(light)
+  }
+
+  _createPlane () {
+    let geometry = new THREE.PlaneGeometry(100, 50, 32, 32)
+    let matarial = new THREE.MeshLambertMaterial({color: 0x0000ff, side: THREE.DoubleSize})
+    let plane = new THREE.Mesh(geometry, matarial)
+    plane.receiveShadow = true
+    this.scene.add(plane)
   }
 
   // create jumper
@@ -66,6 +78,7 @@ class Game {
     let geometry = new THREE.BoxGeometry(5, 3, 5)
     let matarial = new THREE.MeshLambertMaterial({color: 'red'})
     let cube = new THREE.Mesh(geometry, matarial)
+    cube.castShadow = true
 
     if (this.cubes.length > 0) {
       let random = Math.random()
@@ -83,12 +96,11 @@ class Game {
       if (this.cubes.length === 3) {
         this.scene.remove(this.cubes.shift())
         this._selfRender()
-      } 
+      }
 
       this.scene.add(cube)
       this._adjustCamera(direction, adjustVal)
     } else {
-      // console.log(this.camera.position)
       cube.position.set(0, 0, 5)
       this.cubes.push(cube)
       this.scene.add(cube)
@@ -105,10 +117,10 @@ class Game {
     if (this.cameraData.adjustData <= adjustVal) {
       if (direction === 'left') {
         this.cameraData.cameraPos = [this.cameraData.cameraPos[0] - this.cameraData.adjustPer, this.cameraData.cameraPos[1], this.cameraData.cameraPos[2]]
-        this.cameraData.cameraLookAt.set(this.cameraData.cameraLookAt.x  - this.cameraData.adjustPer, 0, this.cameraData.cameraLookAt.z)
+        this.cameraData.cameraLookAt.set(this.cameraData.cameraLookAt.x - this.cameraData.adjustPer, 0, this.cameraData.cameraLookAt.z)
       } else {
         this.cameraData.cameraPos = [this.cameraData.cameraPos[0], this.cameraData.cameraPos[1], this.cameraData.cameraPos[2] - this.cameraData.adjustPer]
-        this.cameraData.cameraLookAt.set(this.cameraData.cameraLookAt.x, 0, this.cameraData.cameraLookAt.z - this.cameraData.adjustPer)      
+        this.cameraData.cameraLookAt.set(this.cameraData.cameraLookAt.x, 0, this.cameraData.cameraLookAt.z - this.cameraData.adjustPer)
       }
 
       this.camera.position.set(...this.cameraData.cameraPos)
@@ -119,7 +131,7 @@ class Game {
       requestAnimationFrame(() => {
         this._adjustCamera(direction, adjustVal)
       })
-    }else{
+    } else {
       this.cameraData.adjustData = 0
     }
   }
