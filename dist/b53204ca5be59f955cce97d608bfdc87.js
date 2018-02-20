@@ -69,7 +69,7 @@ require = (function (modules, cache, entry) {
 
   // Override the current require with this new one
   return newRequire;
-})({6:[function(require,module,exports) {
+})({5:[function(require,module,exports) {
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -41042,7 +41042,7 @@ exports.GeometryUtils = GeometryUtils;
 exports.ImageUtils = ImageUtils;
 exports.Projector = Projector;
 exports.CanvasRenderer = CanvasRenderer;
-},{}],4:[function(require,module,exports) {
+},{}],3:[function(require,module,exports) {
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -41061,59 +41061,143 @@ class Game {
       width: window.innerWidth,
       height: window.innerHeight
     };
+
+    this.cubes = [];
+
+    this.cameraData = {
+      cameraPos: [10, 10, 10],
+      cameraLookAt: new THREE.Vector3(0, 0, 0),
+      adjustPer: 0.1,
+      adjustData: 0
+    };
+  }
+
+  init() {
     this.scene = new THREE.Scene();
     this._setCamera();
     this._setRender();
     this._addLight();
-    this._createCube();
+
+    this._createPlane();
+
     this._createJumper();
+
+    this._createCube();
+    this._createCube();
+
     this._axesHelper();
-    this.renderer.render(this.scene, this.camera);
+
+    this._selfRender();
   }
 
   _setCamera() {
-    this.camera = new THREE.OrthographicCamera(this.size.width / -80, this.size.width / 80, this.size.height / 80, this.size.height / -80, 0, 20);
-    this.camera.position.set(10, 10, 10);
-    this.camera.lookAt(this.scene.position);
+    this.camera = new THREE.OrthographicCamera(this.size.width / -80, this.size.width / 80, this.size.height / 80, this.size.height / -80, 0, 100);
+    this.camera.position.set(...this.cameraData.cameraPos);
+    this.camera.lookAt(this.cameraData.cameraLookAt);
     this.scene.add(this.camera);
   }
 
   _setRender() {
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setSize(this.size.width, this.size.height);
-    this.renderer.setClearColor(new THREE.Color(0x292728));
+    this.renderer.setClearColor(new THREE.Color(0xffffff));
+    this.renderer.shadowMapEnabled = true;
   }
 
   _addLight() {
-    let light = new THREE.SpotLight(0xffffff);
-    light.position.set(20, 30, 20);
+    const light = new THREE.SpotLight(0xffffff);
+    light.position.set(20, 20, 20);
+    light.castShadow = true;
     this.scene.add(light);
   }
 
-  _createCube() {
-    let geometry = new THREE.BoxGeometry(5, 3, 5);
-    let matarial = new THREE.MeshLambertMaterial({ color: 'red' });
-    let cube = new THREE.Mesh(geometry, matarial);
-    cube.position.set(0, 0, 10);
-    this.scene.add(cube);
+  _createPlane() {
+    let geometry = new THREE.PlaneGeometry(100, 50, 32, 32);
+    let matarial = new THREE.MeshLambertMaterial({ color: 0x0000ff, side: THREE.DoubleSize });
+    let plane = new THREE.Mesh(geometry, matarial);
+    plane.receiveShadow = true;
+    this.scene.add(plane);
   }
 
+  // create jumper
   _createJumper() {
-    let geometry = new THREE.BoxGeometry(1, 2, 1);
+    let geometry = new THREE.BoxGeometry(1, 3, 1);
     let matarial = new THREE.MeshLambertMaterial({ color: 'green' });
     let jumper = new THREE.Mesh(geometry, matarial);
     jumper.position.set(0, 2, 10);
     this.scene.add(jumper);
   }
 
+  // randomly create cube
+  _createCube() {
+    let geometry = new THREE.BoxGeometry(5, 3, 5);
+    let matarial = new THREE.MeshLambertMaterial({ color: 'red' });
+    let cube = new THREE.Mesh(geometry, matarial);
+    cube.castShadow = true;
+
+    if (this.cubes.length > 0) {
+      let random = Math.random();
+      let direction = random > 0.5 ? 'left' : 'right';
+      let prevCube = this.cubes[this.cubes.length - 1];
+      let adjustVal = parseInt(random * 4 + 6);
+      if (direction === 'left') {
+        cube.position.set(prevCube.position.x - adjustVal, 0, prevCube.position.z);
+      } else {
+        cube.position.set(prevCube.position.x, 0, prevCube.position.z - adjustVal);
+      }
+
+      this.cubes.push(cube);
+
+      if (this.cubes.length === 3) {
+        this.scene.remove(this.cubes.shift());
+        this._selfRender();
+      }
+
+      this.scene.add(cube);
+      this._adjustCamera(direction, adjustVal);
+    } else {
+      cube.position.set(0, 0, 5);
+      this.cubes.push(cube);
+      this.scene.add(cube);
+    }
+  }
+
   _axesHelper() {
     const axes = new THREE.AxesHelper(150);
     this.scene.add(axes);
   }
+
+  /* ----------- public function ----------- */
+  _adjustCamera(direction, adjustVal) {
+    if (this.cameraData.adjustData <= adjustVal) {
+      if (direction === 'left') {
+        this.cameraData.cameraPos = [this.cameraData.cameraPos[0] - this.cameraData.adjustPer, this.cameraData.cameraPos[1], this.cameraData.cameraPos[2]];
+        this.cameraData.cameraLookAt.set(this.cameraData.cameraLookAt.x - this.cameraData.adjustPer, 0, this.cameraData.cameraLookAt.z);
+      } else {
+        this.cameraData.cameraPos = [this.cameraData.cameraPos[0], this.cameraData.cameraPos[1], this.cameraData.cameraPos[2] - this.cameraData.adjustPer];
+        this.cameraData.cameraLookAt.set(this.cameraData.cameraLookAt.x, 0, this.cameraData.cameraLookAt.z - this.cameraData.adjustPer);
+      }
+
+      this.camera.position.set(...this.cameraData.cameraPos);
+      this.camera.lookAt(this.cameraData.cameraLookAt);
+      this._selfRender();
+
+      this.cameraData.adjustData += this.cameraData.adjustPer;
+      requestAnimationFrame(() => {
+        this._adjustCamera(direction, adjustVal);
+      });
+    } else {
+      this.cameraData.adjustData = 0;
+    }
+  }
+
+  _selfRender() {
+    this.renderer.render(this.scene, this.camera);
+  }
 }
 
 exports.default = Game;
-},{"three":6}],2:[function(require,module,exports) {
+},{"three":5}],2:[function(require,module,exports) {
 'use strict';
 
 var _game = require('./game');
@@ -41123,10 +41207,20 @@ var _game2 = _interopRequireDefault(_game);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const game = new _game2.default();
+game.init();
 
 const canvas = document.querySelector('#jump');
 canvas.append(game.renderer.domElement);
-},{"./game":4}],7:[function(require,module,exports) {
+
+document.onkeyup = event => {
+  var e = event || window.event;
+  var keyCode = e.keyCode || e.which;
+  switch (keyCode) {
+    case 38:
+      game._createCube();
+  }
+};
+},{"./game":3}],10:[function(require,module,exports) {
 
 var global = (1, eval)('this');
 var OldModule = module.bundle.Module;
@@ -41146,7 +41240,7 @@ module.bundle.Module = Module;
 
 if (!module.bundle.parent && typeof WebSocket !== 'undefined') {
   var hostname = '' || location.hostname;
-  var ws = new WebSocket('ws://' + hostname + ':' + '51652' + '/');
+  var ws = new WebSocket('ws://' + hostname + ':' + '51301' + '/');
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
 
@@ -41247,5 +41341,5 @@ function hmrAccept(bundle, id) {
     return hmrAccept(global.require, id);
   });
 }
-},{}]},{},[7,2])
+},{}]},{},[10,2])
 //# sourceMappingURL=/dist/b53204ca5be59f955cce97d608bfdc87.map
