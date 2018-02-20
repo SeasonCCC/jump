@@ -83,7 +83,7 @@ class Game {
       if (this.cubes.length === 3) {
         this.scene.remove(this.cubes.shift())
         this._selfRender()
-      } 
+      }
 
       this.scene.add(cube)
       this._adjustCamera(cube.position, direction, adjustVal)
@@ -109,12 +109,12 @@ class Game {
     }
     if (direction === 'left') {
       this.camera.position.set(this.cameraData.cameraPos.x - adjustVal, this.cameraData.cameraPos.y, this.cameraData.cameraPos.z)
-      this.camera.lookAt(new THREE.Vector3(this.cameraData.cameraLookAt.x  - adjustVal, 0, this.cameraData.cameraLookAt.z - 10))
+      this.camera.lookAt(new THREE.Vector3(this.cameraData.cameraLookAt.x - adjustVal, 0, this.cameraData.cameraLookAt.z - 10))
     } else {
       this.camera.position.set(this.cameraData.cameraPos.x, this.cameraData.cameraPos.y, this.cameraData.cameraPos.z - adjustVal)
       this.camera.lookAt(new THREE.Vector3(this.cameraData.cameraLookAt.x, 0, this.cameraData.cameraLookAt.z - 10 - adjustVal))
     }
-    
+
     this._selfRender()
 
     this.cameraData.cameraPos = this.camera.position
