@@ -57,10 +57,12 @@ class Game {
   }
 
   _createPlane () {
-    let geometry = new THREE.PlaneGeometry(100, 50, 32, 32)
-    let matarial = new THREE.MeshLambertMaterial({color: 0x0000ff, side: THREE.DoubleSize})
+    let geometry = new THREE.PlaneGeometry(60, 60)
+    let matarial = new THREE.MeshLambertMaterial({color: 0xffffff})
     let plane = new THREE.Mesh(geometry, matarial)
     plane.receiveShadow = true
+    plane.rotation.x = -Math.PI / 2
+    plane.position.set(0, -3, 0)
     this.scene.add(plane)
   }
 

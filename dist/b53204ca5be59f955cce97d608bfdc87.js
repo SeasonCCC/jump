@@ -69,7 +69,7 @@ require = (function (modules, cache, entry) {
 
   // Override the current require with this new one
   return newRequire;
-})({5:[function(require,module,exports) {
+})({4:[function(require,module,exports) {
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -41112,10 +41112,12 @@ class Game {
   }
 
   _createPlane() {
-    let geometry = new THREE.PlaneGeometry(100, 50, 32, 32);
-    let matarial = new THREE.MeshLambertMaterial({ color: 0x0000ff, side: THREE.DoubleSize });
+    let geometry = new THREE.PlaneGeometry(60, 60);
+    let matarial = new THREE.MeshLambertMaterial({ color: 0xffffff });
     let plane = new THREE.Mesh(geometry, matarial);
     plane.receiveShadow = true;
+    plane.rotation.x = -Math.PI / 2;
+    plane.position.set(0, -3, 0);
     this.scene.add(plane);
   }
 
@@ -41197,7 +41199,7 @@ class Game {
 }
 
 exports.default = Game;
-},{"three":5}],2:[function(require,module,exports) {
+},{"three":4}],2:[function(require,module,exports) {
 'use strict';
 
 var _game = require('./game');
@@ -41220,7 +41222,7 @@ document.onkeyup = event => {
       game._createCube();
   }
 };
-},{"./game":3}],10:[function(require,module,exports) {
+},{"./game":3}],15:[function(require,module,exports) {
 
 var global = (1, eval)('this');
 var OldModule = module.bundle.Module;
@@ -41240,7 +41242,7 @@ module.bundle.Module = Module;
 
 if (!module.bundle.parent && typeof WebSocket !== 'undefined') {
   var hostname = '' || location.hostname;
-  var ws = new WebSocket('ws://' + hostname + ':' + '51301' + '/');
+  var ws = new WebSocket('ws://' + hostname + ':' + '50349' + '/');
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
 
@@ -41341,5 +41343,5 @@ function hmrAccept(bundle, id) {
     return hmrAccept(global.require, id);
   });
 }
-},{}]},{},[10,2])
+},{}]},{},[15,2])
 //# sourceMappingURL=/dist/b53204ca5be59f955cce97d608bfdc87.map
