@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import {adjustCamera} from './utils'
+import {adjustCamera, checkCube} from './utils'
 
 class Game {
   constructor () {
@@ -19,7 +19,7 @@ class Game {
 
     this.jumperData = {
       direction: null,
-      flag: false,
+      flag: true,
       speed: 0,
       speedY: 0
     }
@@ -83,11 +83,11 @@ class Game {
     // this.jumper.translate(0, 1, 0)
     this.jumper.position.set(0, 1.5, 5)
     this.scene.add(this.jumper)
-    console.log(this.jumper)
+    // console.log(this.jumper)
   }
 
   _handelMouseDown () {
-    if (!this.jumperData.flag) {
+    if (this.jumperData.flag) {
       this.jumperData.speed += 0.004
       this.jumperData.speedY += 0.008
       this.jumper.scale.y -= 0.01
@@ -99,22 +99,37 @@ class Game {
   }
 
   _handelMouseUp () {
-    this.jumperData.flag = true
-    if (this.jumper.direction === 'left') {
-      this.jumper.position.x -= this.jumperData.speed
-    } else {
-      this.jumper.position.z -= this.jumperData.speed
-    }
+    // console.log(this.jumper.position.y)
+    if (this.jumper.position.y >= 1.5) {
+      this.jumperData.flag = false
+      if (this.jumper.direction == 'left') {
+        this.jumper.position.x -= this.jumperData.speed
+      } else {
+        this.jumper.position.z -= this.jumperData.speed
+      }
 
-    this.jumper.position.y += this.jumperData.speedY
-    if (this.jumper.scale.y < 1) {
-      this.jumper.scale.y += 0.02
+      this.jumper.position.y += this.jumperData.speedY
+      if (this.jumper.scale.y < 1) {
+        this.jumper.scale.y += 0.02
+      }
+      this.jumperData.speedY -= 0.01
+      this._selfRender()
+      requestAnimationFrame(() => {
+        this._handelMouseUp()
+      })
+    } else {
+      this.jumper.position.y = 1.5
+      const cubeFlag = checkCube(this.jumper, this.cubes)
+      if (!cubeFlag) {
+        this.scene.remove(this.jumper)
+        this.renderer.render(this.scene, this.camera)
+      } else {
+        this.jumperData.speed = 0
+        this.jumperData.speedY = 0
+        this._createCube()
+        this.jumperData.flag = true
+      }
     }
-    this.jumperData.speedY -= 0.01
-    this._selfRender()
-    requestAnimationFrame(() => {
-      this._handelMouseUp()
-    })
   }
 
   // randomly create cube
