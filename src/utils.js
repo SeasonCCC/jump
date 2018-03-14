@@ -27,9 +27,9 @@ export const adjustCamera = (options) => {
 
 /**
  * [check whether the jumper can stand in the cube or not]
- * @param  {[type]} jumper [jumper obj]
- * @param  {[type]} cubes  [cubes obj]
- * @return {[type]}        [description]
+ * @param  {[obj]} jumper [jumper obj]
+ * @param  {[obj]} cubes  [cubes obj]
+ * @return {[obj]}        [{fallingFlag: false,fallingDirection: ''}]
  */
 export const checkCube = (jumper, cubes) => {
   // console.log(jumper, cubes)
@@ -48,23 +48,53 @@ export const checkCube = (jumper, cubes) => {
     z: cubes[1].position.z
   }
 
-  let distanceS, distanceL
+  let distanceS, distanceL, disatnceC
 
   if (jumper.direction == 'left') {
     distanceS = Math.abs(jumperPoint.x - cubePoint0.x)
     distanceL = Math.abs(jumperPoint.x - cubePoint1.x)
+    disatnceC = Math.abs(cubePoint0.x - cubePoint1.x)
   } else {
     distanceS = Math.abs(jumperPoint.z - cubePoint0.z)
     distanceL = Math.abs(jumperPoint.z - cubePoint1.z)
+    disatnceC = Math.abs(cubePoint0.z - cubePoint1.z)
   }
 
   const allowDistance = 3 // cube width + jumper width
-
+  let returnDefault = {
+    fallingFlag: false,
+    fallingDirection: ''
+  }
   if (distanceS < allowDistance) {
-    return true
+    if (distanceS > 2.5 && distanceS < 3) {
+      return Object.assign(returnDefault, {fallingFlag: true, fallingDirection: `top`})
+    } else {
+      return Object.assign(returnDefault, {fallingFlag: false, fallingDirection: '', createCube: false})
+    }
   } else if (distanceL < allowDistance) {
-    return true
+    if (distanceL > 2.5 && distanceL < 3) {
+      if (distanceS > disatnceC) {
+        return Object.assign(returnDefault, {fallingFlag: true, fallingDirection: `top`})
+      } else {
+        return Object.assign(returnDefault, {fallingFlag: true, fallingDirection: `bottom`})
+      }
+    } else {
+      return Object.assign(returnDefault, {fallingFlag: false, fallingDirection: '', createCube: true})
+    }
   } else {
-    return false
+    return Object.assign(returnDefault, {fallingFlag: true, fallingDirection: ''})
+  }
+}
+
+/**
+ * [jumper falling animation]
+ * @param  {[string]} direction [falling direction]
+ * @return {[type]}           [description]
+ */
+export const jumperFalling = (jumper, direction, fallRate) => {
+  if (jumper.direction == 'left') {
+    (direction == 'top') ? jumper.rotateZ(-Math.PI / 2) : jumper.rotateZ(Math.PI / 2)
+  } else {
+    (direction == 'top') ? jumper.rotateX(-Math.PI / 2) : jumper.rotateX(Math.PI / 2)
   }
 }

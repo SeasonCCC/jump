@@ -14,11 +14,11 @@ canvas.addEventListener('mouseup', function(){
   game._handelMouseUp()
 })
 
-document.onkeyup = (event) => {
-  var e = event || window.event
-  var keyCode = e.keyCode || e.which
-  switch (keyCode) {
-    case 38:
-      game._createCube()
-  }
-}
+// document.onkeyup = (event) => {
+//   var e = event || window.event
+//   var keyCode = e.keyCode || e.which
+//   switch (keyCode) {
+//     case 38:
+//       game._createCube()
+//   }
+// }

@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import {adjustCamera, checkCube} from './utils'
+import {adjustCamera, checkCube, jumperFalling} from './utils'
 
 class Game {
   constructor () {
@@ -21,7 +21,9 @@ class Game {
       direction: null,
       flag: true,
       speed: 0,
-      speedY: 0
+      speedY: 0,
+      fallingDirection: '',
+      fallingRate: 0.02
     }
   }
 
@@ -99,7 +101,6 @@ class Game {
   }
 
   _handelMouseUp () {
-    // console.log(this.jumper.position.y)
     if (this.jumper.position.y >= 1.5) {
       this.jumperData.flag = false
       if (this.jumper.direction == 'left') {
@@ -120,16 +121,41 @@ class Game {
     } else {
       this.jumper.position.y = 1.5
       const cubeFlag = checkCube(this.jumper, this.cubes)
-      if (!cubeFlag) {
-        this.scene.remove(this.jumper)
-        this.renderer.render(this.scene, this.camera)
+      if (cubeFlag.fallingFlag) {
+        if (cubeFlag.fallingDirection == '') {
+          this.scene.remove(this.jumper)
+          this.renderer.render(this.scene, this.camera)
+        } else {
+          this.jumperData.fallingDirection = cubeFlag.fallingDirection
+          // this.jumper.rotateX(-Math.PI / 4)
+          this._jumperFalling()
+          this.renderer.render(this.scene, this.camera)
+        }
       } else {
         this.jumperData.speed = 0
-        this.jumperData.speedY = 0
-        this._createCube()
+        this.jumperData.speedY = 0;
+        (cubeFlag.createCube) && this._createCube()
         this.jumperData.flag = true
       }
     }
+  }
+
+  // falling animation
+  _jumperFalling () {
+    if (this.jumper.direction == 'left') {
+      if (Math.abs(this.jumper.rotation.z) < (Math.PI / 2)) {
+        (this.jumperData.fallingDirection == 'top') ? this.jumper.rotateZ(Math.PI / 20) : this.jumper.rotateZ(-Math.PI / 20)
+      }
+    } else {
+      if (Math.abs(this.jumper.rotation.x) < (Math.PI / 2)) {
+        (this.jumperData.fallingDirection == 'top') ? this.jumper.rotateX(-Math.PI / 20) : this.jumper.rotateX(Math.PI / 20)
+        // console.log(Math.abs(this.jumper.rotation.x))
+      }
+    }
+    this.renderer.render(this.scene, this.camera)
+    requestAnimationFrame(() => {
+      this._jumperFalling()
+    })
   }
 
   // randomly create cube
